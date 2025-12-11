@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מה זה Git ו-GitHub?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .section-header h2 {
+            font-size: 2em;
+            margin: 0;
+        }
+
+        .section-header.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 30px;
+            display: none;
+            background: #f9f9f9;
+            animation: slideDown 0.3s ease;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-content h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .section-content p {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .section-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .section-content li {
+            font-size: 1.1em;
+            padding: 12px;
+            margin: 10px 0;
+            background: white;
+            border-right: 4px solid #667eea;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .section-content li:hover {
+            background: #f0f0ff;
+            transform: translateX(-5px);
+        }
+
+        .section-content li::before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-example::before {
+            content: "💻";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.2em;
+        }
+
+        .code-example code {
+            display: block;
+            padding-right: 30px;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .interactive-demo {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .interactive-demo h4 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .demo-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0ff;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-size: 1.2em;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: right;
+        }
+
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            margin-left: 10px;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .section-header h2 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Git ו-GitHub - המדריך המלא</h1>
+            <p>למד מה זה Git ומה זה GitHub בצורה אינטראקטיבית ופשוטה</p>
+        </header>
+
+        <div class="content">
+            <!-- Git Section -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h2><span class="icon">📦</span> מה זה Git?</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <h3>הגדרה בסיסית</h3>
+                    <p>
+                        <span class="highlight">Git</span> הוא מערכת בקרת גרסאות מבוזרת (Distributed Version Control System) 
+                        שפותחה על ידי לינוס טורוולדס בשנת 2005. Git מאפשר לך לעקוב אחר שינויים בקבצים ולנהל פרויקטים בצורה יעילה.
+                    </p>
+
+                    <h3>למה Git חשוב?</h3>
+                    <ul>
+                        <li>שמירת היסטוריה מלאה של כל השינויים בפרויקט</li>
+                        <li>אפשרות לחזור לגרסאות קודמות אם משהו השתבש</li>
+                        <li>עבודה משותפת על אותו פרויקט ללא התנגשויות</li>
+                        <li>יצירת ענפים (branches) לעבודה על תכונות חדשות</li>
+                        <li>מיזוג שינויים מכמה מפתחים בצורה בטוחה</li>
+                    </ul>
+
+                    <h3>מושגים בסיסיים ב-Git</h3>
+                    <div class="interactive-demo">
+                        <h4>לחץ על הפקודות כדי ללמוד עליהן</h4>
+                        <button class="button" onclick="showDemo('init')">git init</button>
+                        <button class="button" onclick="showDemo('add')">git add</button>
+                        <button class="button" onclick="showDemo('commit')">git commit</button>
+                        <button class="button" onclick="showDemo('status')">git status</button>
+                        <button class="button" onclick="showDemo('log')">git log</button>
+                        <div id="demo-result" class="demo-result"></div>
+                    </div>
+
+                    <h3>דוגמאות פקודות Git</h3>
+                    <div class="code-example">
+                        <code>
+# יצירת מאגר Git חדש<br>
+git init<br><br>
+# הוספת קבצים לשלב ההכנה (staging)<br>
+git add .<br><br>
+# יצירת commit (נקודת שמירה)<br>
+git commit -m "הוספתי תכונה חדשה"<br><br>
+# צפייה בסטטוס הנוכחי<br>
+git status<br><br>
+# צפייה בהיסטוריית ה-commits<br>
+git log
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub Section -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h2><span class="icon">🐙</span> מה זה GitHub?</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <h3>הגדרה בסיסית</h3>
+                    <p>
+                        <span class="highlight">GitHub</span> הוא שירות אירוח מבוסס אינטרנט למאגרי Git. 
+                        זהו הפלטפורמה הגדולה ביותר בעולם לאירוח קוד, עם יותר מ-100 מיליון מפתחים.
+                    </p>
+
+                    <h3>למה GitHub שימושי?</h3>
+                    <ul>
+                        <li>גיבוי אוטומטי של הקוד שלך בענן</li>
+                        <li>שיתוף קוד עם מפתחים אחרים ברחבי העולם</li>
+                        <li>שיתוף פעולה על פרויקטים באמצעות Pull Requests</li>
+                        <li>מעקב אחר באגים ותכונות באמצעות Issues</li>
+                        <li>אירוח אתרים סטטיים באמצעות GitHub Pages</li>
+                        <li>גישה לקוד מכל מחשב בעולם</li>
+                    </ul>
+
+                    <h3>ההבדל בין Git ל-GitHub</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Git</th>
+                                <th>GitHub</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>תוכנה מקומית על המחשב שלך</td>
+                                <td>שירות אינטרנט (אתר)</td>
+                            </tr>
+                            <tr>
+                                <td>עובד גם ללא אינטרנט</td>
+                                <td>דורש חיבור לאינטרנט</td>
+                            </tr>
+                            <tr>
+                                <td>ניהול גרסאות מקומי</td>
+                                <td>אירוח ושיתוף קוד</td>
+                            </tr>
+                            <tr>
+                                <td>חינמי ופתוח</td>
+                                <td>חינמי לפרויקטים ציבוריים</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>תכונות מרכזיות של GitHub</h3>
+                    <div class="code-example">
+                        <code>
+# העלאת קוד ל-GitHub<br>
+git remote add origin https://github.com/username/repo.git<br>
+git push -u origin main<br><br>
+# הורדת עדכונים מ-GitHub<br>
+git pull origin main<br><br>
+# שכפול פרויקט קיים<br>
+git clone https://github.com/username/repo.git
+                        </code>
+                    </div>
+
+                    <h3>תהליך עבודה טיפוסי</h3>
+                    <ol style="font-size: 1.2em; line-height: 2; padding-right: 20px;">
+                        <li>יוצר מאגר Git מקומי: <code style="background: #f0f0f0; padding: 2px 8px; border-radius: 4px;">git init</code></li>
+                        <li>מוסיף קבצים: <code style="background: #f0f0f0; padding: 2px 8px; border-radius: 4px;">git add .</code></li>
+                        <li>יוצר commit: <code style="background: #f0f0f0; padding: 2px 8px; border-radius: 4px;">git commit -m "הודעה"</code></li>
+                        <li>מעלה ל-GitHub: <code style="background: #f0f0f0; padding: 2px 8px; border-radius: 4px;">git push</code></li>
+                        <li>משתף עם אחרים או עובד על פרויקטים משותפים</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h2><span class="icon">💡</span> סיכום</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <h3>השורה התחתונה</h3>
+                    <p style="font-size: 1.3em; text-align: center; padding: 20px; background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%); border-radius: 10px; margin: 20px 0;">
+                        <strong>Git</strong> הוא כלי לניהול גרסאות על המחשב שלך<br>
+                        <strong>GitHub</strong> הוא המקום שבו אתה שומר ומשתף את הקוד שלך בענן<br><br>
+                        יחד הם מהווים את הכלים החזקים ביותר לפיתוח תוכנה מודרני! 🚀
+                    </p>
+
+                    <h3>איך להתחיל?</h3>
+                    <ul>
+                        <li>הורד והתקן Git מהאתר הרשמי: git-scm.com</li>
+                        <li>צור חשבון חינמי ב-GitHub: github.com</li>
+                        <li>התחל עם פרויקט קטן ותרגל את הפקודות הבסיסיות</li>
+                        <li>צפה במדריכים וטutorials באינטרנט</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>נוצר עם ❤️ כדי לעזור לך להבין את Git ו-GitHub</p>
+        </footer>
+    </div>
+
+    <script>
+        // Toggle section content
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                header.classList.remove('active');
+                icon.classList.remove('rotated');
+            } else {
+                // Close all other sections
+                document.querySelectorAll('.section-content').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.querySelectorAll('.section-header').forEach(h => {
+                    h.classList.remove('active');
+                    h.querySelector('.toggle-icon').classList.remove('rotated');
+                });
+                
+                // Open clicked section
+                content.classList.add('active');
+                header.classList.add('active');
+                icon.classList.add('rotated');
+            }
+        }
+
+        // Interactive demo for Git commands
+        const demos = {
+            'init': {
+                title: 'git init',
+                description: 'יוצר מאגר Git חדש בתיקייה הנוכחית. זהו השלב הראשון בכל פרויקט Git.'
+            },
+            'add': {
+                title: 'git add',
+                description: 'מוסיף קבצים לשלב ההכנה (staging area). הקבצים מוכנים ליצירת commit. לדוגמה: git add . מוסיף את כל הקבצים.'
+            },
+            'commit': {
+                title: 'git commit',
+                description: 'יוצר נקודת שמירה (snapshot) של השינויים שלך. כל commit צריך הודעה שמסבירה מה השתנה. לדוגמה: git commit -m "תיקון באג"'
+            },
+            'status': {
+                title: 'git status',
+                description: 'מציג את הסטטוס הנוכחי של המאגר - אילו קבצים שונו, אילו מוכנים ל-commit, וכו\'.'
+            },
+            'log': {
+                title: 'git log',
+                description: 'מציג את היסטוריית כל ה-commits, מי יצר אותם, מתי, ומה ההודעה של כל אחד.'
+            }
+        };
+
+        function showDemo(command) {
+            const resultDiv = document.getElementById('demo-result');
+            const demo = demos[command];
+            
+            resultDiv.innerHTML = `
+                <h4 style="color: #667eea; margin-bottom: 10px;">${demo.title}</h4>
+                <p style="font-size: 1.1em; line-height: 1.6;">${demo.description}</p>
+            `;
+            
+            resultDiv.classList.add('show');
+        }
+
+        // Open first section by default
+        window.addEventListener('load', function() {
+            const firstSection = document.querySelector('.section-header');
+            if (firstSection) {
+                toggleSection(firstSection);
+            }
+        });
+    </script>
+</body>
+</html>
