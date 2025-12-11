@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ויזואליזציה אינטראקטיבית של קיפול חלבונים</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls-panel {
+            width: 350px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-group h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .controls-panel {
+                width: 100%;
+                max-height: 40vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧬 ויזואליזציה אינטראקטיבית של קיפול חלבונים</h1>
+            <div class="subtitle">חקור את המבנה התלת-ממדי של חלבונים</div>
+        </header>
+        <div class="main-content">
+            <div class="canvas-container">
+                <div class="loading" id="loading">טוען...</div>
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="controls-panel">
+                <div class="control-group">
+                    <h3>🎮 בקרות תצוגה</h3>
+                    <div class="control-item">
+                        <label>מהירות סיבוב: <span class="value-display" id="rotation-speed">0.5</span></label>
+                        <input type="range" id="rotationSpeed" min="0" max="2" step="0.1" value="0.5">
+                    </div>
+                    <div class="control-item">
+                        <label>גודל: <span class="value-display" id="scale-value">1.0</span></label>
+                        <input type="range" id="scale" min="0.5" max="2" step="0.1" value="1.0">
+                    </div>
+                    <div class="control-item">
+                        <label>שקיפות: <span class="value-display" id="opacity-value">0.8</span></label>
+                        <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.8">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🎨 צבעים וסגנון</h3>
+                    <div class="control-item">
+                        <label>סגנון תצוגה:</label>
+                        <button id="style-cartoon">קריקטורה</button>
+                        <button id="style-sphere">כדורים</button>
+                        <button id="style-stick">מקלות</button>
+                        <button id="style-ribbon">סרט</button>
+                    </div>
+                    <div class="control-item">
+                        <label>צבע לפי:</label>
+                        <button id="color-chain">שרשרת</button>
+                        <button id="color-residue">שייר</button>
+                        <button id="color-rainbow">קשת</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>⚙️ אנימציה</h3>
+                    <div class="control-item">
+                        <button id="play-pause">▶️ השהה/המשך</button>
+                        <button id="reset">🔄 איפוס</button>
+                        <button id="random-fold">🎲 קיפול אקראי</button>
+                    </div>
+                    <div class="control-item">
+                        <label>מהירות אנימציה: <span class="value-display" id="anim-speed">1.0</span></label>
+                        <input type="range" id="animSpeed" min="0.1" max="3" step="0.1" value="1.0">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>📊 מידע</h3>
+                    <div class="info-box">
+                        <strong>מספר שרשראות:</strong> <span id="chain-count">1</span><br>
+                        <strong>מספר שיירים:</strong> <span id="residue-count">0</span><br>
+                        <strong>מצב:</strong> <span id="status">מוכן</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // הגדרות בסיסיות
+        let scene, camera, renderer, controls;
+        let proteinGroup = new THREE.Group();
+        let isPlaying = true;
+        let rotationSpeed = 0.5;
+        let animSpeed = 1.0;
+        let currentStyle = 'sphere';
+        let currentColorScheme = 'rainbow';
+
+        // יצירת חלבון דוגמה (אלפא הליקס פשוט)
+        function createProteinStructure() {
+            const residues = 30;
+            const radius = 0.3;
+            const helixRadius = 1.5;
+            const residuesPerTurn = 3.6;
+            
+            const geometry = new THREE.SphereGeometry(radius, 16, 16);
+            const positions = [];
+            const colors = [];
+            
+            for (let i = 0; i < residues; i++) {
+                const angle = (i / residuesPerTurn) * Math.PI * 2;
+                const y = i * 0.5;
+                const x = Math.cos(angle) * helixRadius;
+                const z = Math.sin(angle) * helixRadius;
+                
+                positions.push(x, y, z);
+                
+                // צבע קשת
+                const hue = (i / residues) * 0.7;
+                const color = new THREE.Color().setHSL(hue, 0.8, 0.6);
+                colors.push(color.r, color.g, color.b);
+            }
+            
+            return { positions, colors, residues, geometry };
+        }
+
+        // יצירת חלבון מורכב יותר
+        function createComplexProtein() {
+            const structure = {
+                positions: [],
+                colors: [],
+                residues: 0,
+                chains: []
+            };
+            
+            // שרשרת ראשית - אלפא הליקס
+            const helix1 = createHelix(25, 0, 0, 0, 1.5);
+            structure.positions.push(...helix1.positions);
+            structure.colors.push(...helix1.colors);
+            structure.residues += 25;
+            
+            // שרשרת שנייה - בטא פלייט
+            const sheet1 = createBetaSheet(15, 0, 15, -3, 0);
+            structure.positions.push(...sheet1.positions);
+            structure.colors.push(...sheet1.colors);
+            structure.residues += 15;
+            
+            // שרשרת שלישית - לולאה
+            const loop1 = createLoop(10, 0, 30, 3, 0);
+            structure.positions.push(...loop1.positions);
+            structure.colors.push(...loop1.colors);
+            structure.residues += 10;
+            
+            return structure;
+        }
+
+        function createHelix(length, startX, startY, startZ, radius) {
+            const positions = [];
+            const colors = [];
+            const residuesPerTurn = 3.6;
+            
+            for (let i = 0; i < length; i++) {
+                const angle = (i / residuesPerTurn) * Math.PI * 2;
+                const x = startX + Math.cos(angle) * radius;
+                const y = startY + i * 0.5;
+                const z = startZ + Math.sin(angle) * radius;
+                
+                positions.push(x, y, z);
+                
+                const hue = (i / length) * 0.3 + 0.5;
+                const color = new THREE.Color().setHSL(hue, 0.8, 0.6);
+                colors.push(color.r, color.g, color.b);
+            }
+            
+            return { positions, colors };
+        }
+
+        function createBetaSheet(length, startX, startY, startZ, direction) {
+            const positions = [];
+            const colors = [];
+            
+            for (let i = 0; i < length; i++) {
+                const x = startX + i * 0.35 * direction;
+                const y = startY + i * 0.3;
+                const z = startZ + Math.sin(i * 0.5) * 0.2;
+                
+                positions.push(x, y, z);
+                
+                const hue = 0.1 + (i / length) * 0.2;
+                const color = new THREE.Color().setHSL(hue, 0.9, 0.5);
+                colors.push(color.r, color.g, color.b);
+            }
+            
+            return { positions, colors };
+        }
+
+        function createLoop(length, startX, startY, startZ, radius) {
+            const positions = [];
+            const colors = [];
+            
+            for (let i = 0; i < length; i++) {
+                const angle = (i / length) * Math.PI * 2;
+                const x = startX + Math.cos(angle) * radius;
+                const y = startY + i * 0.4;
+                const z = startZ + Math.sin(angle) * radius;
+                
+                positions.push(x, y, z);
+                
+                const hue = 0.8 + (i / length) * 0.2;
+                const color = new THREE.Color().setHSL(hue % 1, 0.7, 0.6);
+                colors.push(color.r, color.g, color.b);
+            }
+            
+            return { positions, colors };
+        }
+
+        // אתחול הסצנה
+        function init() {
+            const container = document.getElementById('canvas');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // יצירת סצנה
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+
+            // יצירת מצלמה
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.set(0, 10, 20);
+            camera.lookAt(0, 0, 0);
+
+            // יצירת רנדרר
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: container, 
+                antialias: true,
+                alpha: true 
+            });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // תאורה
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight1.position.set(10, 10, 5);
+            scene.add(directionalLight1);
+
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            directionalLight2.position.set(-10, -10, -5);
+            scene.add(directionalLight2);
+
+            // יצירת חלבון
+            createProtein();
+
+            // בקרות עכבר
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                
+                proteinGroup.rotation.y += deltaX * 0.01;
+                proteinGroup.rotation.x += deltaY * 0.01;
+                
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            container.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                camera.position.multiplyScalar(1 + e.deltaY * 0.001);
+            });
+
+            // אנימציה
+            animate();
+
+            // הסתרת מסך טעינה
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function createProtein() {
+            scene.remove(proteinGroup);
+            proteinGroup = new THREE.Group();
+            
+            const structure = createComplexProtein();
+            const positions = structure.positions;
+            const colors = structure.colors;
+            
+            // יצירת גיאומטריה
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            
+            // חיבור שיירים עם קווים
+            const lineIndices = [];
+            for (let i = 0; i < positions.length / 3 - 1; i++) {
+                lineIndices.push(i, i + 1);
+            }
+            geometry.setIndex(lineIndices);
+            
+            // יצירת חומר
+            const material = new THREE.LineBasicMaterial({
+                vertexColors: true,
+                linewidth: 2
+            });
+            
+            const lines = new THREE.LineSegments(geometry, material);
+            proteinGroup.add(lines);
+            
+            // יצירת כדורים לכל שייר
+            const sphereGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            for (let i = 0; i < positions.length; i += 3) {
+                const sphereMaterial = new THREE.MeshPhongMaterial({
+                    color: new THREE.Color(colors[i], colors[i + 1], colors[i + 2]),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                sphere.position.set(positions[i], positions[i + 1], positions[i + 2]);
+                proteinGroup.add(sphere);
+            }
+            
+            scene.add(proteinGroup);
+            
+            // עדכון מידע
+            document.getElementById('residue-count').textContent = structure.residues;
+            document.getElementById('chain-count').textContent = '3';
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isPlaying) {
+                proteinGroup.rotation.y += rotationSpeed * 0.01 * animSpeed;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // אירועי בקרה
+        document.getElementById('rotationSpeed').addEventListener('input', (e) => {
+            rotationSpeed = parseFloat(e.target.value);
+            document.getElementById('rotation-speed').textContent = rotationSpeed.toFixed(1);
+        });
+
+        document.getElementById('scale').addEventListener('input', (e) => {
+            const scale = parseFloat(e.target.value);
+            proteinGroup.scale.set(scale, scale, scale);
+            document.getElementById('scale-value').textContent = scale.toFixed(1);
+        });
+
+        document.getElementById('opacity').addEventListener('input', (e) => {
+            const opacity = parseFloat(e.target.value);
+            proteinGroup.traverse((child) => {
+                if (child.material) {
+                    child.material.opacity = opacity;
+                    child.material.transparent = opacity < 1;
+                }
+            });
+            document.getElementById('opacity-value').textContent = opacity.toFixed(1);
+        });
+
+        document.getElementById('animSpeed').addEventListener('input', (e) => {
+            animSpeed = parseFloat(e.target.value);
+            document.getElementById('anim-speed').textContent = animSpeed.toFixed(1);
+        });
+
+        document.getElementById('play-pause').addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            document.getElementById('play-pause').textContent = isPlaying ? '⏸️ השהה' : '▶️ המשך';
+            document.getElementById('status').textContent = isPlaying ? 'מנגן' : 'מושהה';
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            proteinGroup.rotation.set(0, 0, 0);
+            camera.position.set(0, 10, 20);
+            camera.lookAt(0, 0, 0);
+            proteinGroup.scale.set(1, 1, 1);
+            document.getElementById('scale').value = 1.0;
+            document.getElementById('scale-value').textContent = '1.0';
+            document.getElementById('status').textContent = 'אופס';
+        });
+
+        document.getElementById('random-fold').addEventListener('click', () => {
+            createProtein();
+            document.getElementById('status').textContent = 'קיפול חדש';
+        });
+
+        // סגנונות תצוגה
+        document.getElementById('style-cartoon').addEventListener('click', () => {
+            currentStyle = 'cartoon';
+            document.getElementById('status').textContent = 'סגנון: קריקטורה';
+        });
+
+        document.getElementById('style-sphere').addEventListener('click', () => {
+            currentStyle = 'sphere';
+            document.getElementById('status').textContent = 'סגנון: כדורים';
+        });
+
+        document.getElementById('style-stick').addEventListener('click', () => {
+            currentStyle = 'stick';
+            document.getElementById('status').textContent = 'סגנון: מקלות';
+        });
+
+        document.getElementById('style-ribbon').addEventListener('click', () => {
+            currentStyle = 'ribbon';
+            document.getElementById('status').textContent = 'סגנון: סרט';
+        });
+
+        // סכמות צבעים
+        document.getElementById('color-chain').addEventListener('click', () => {
+            currentColorScheme = 'chain';
+            document.getElementById('status').textContent = 'צבע לפי שרשרת';
+        });
+
+        document.getElementById('color-residue').addEventListener('click', () => {
+            currentColorScheme = 'residue';
+            document.getElementById('status').textContent = 'צבע לפי שייר';
+        });
+
+        document.getElementById('color-rainbow').addEventListener('click', () => {
+            currentColorScheme = 'rainbow';
+            document.getElementById('status').textContent = 'צבע קשת';
+        });
+
+        // טיפול בשינוי גודל חלון
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvas');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        });
+
+        // אתחול
+        init();
+    </script>
+</body>
+</html>
