@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מוצרי תרבות בישראל - בחירה לפי קטגוריות</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f0f23;
+            --secondary: #1a1a3e;
+            --accent-blue: #4a90e2;
+            --accent-purple: #9b59b6;
+            --accent-pink: #e91e63;
+            --accent-orange: #ff6b35;
+            --accent-green: #2ecc71;
+            --accent-gold: #f39c12;
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --card-bg: rgba(26, 26, 62, 0.8);
+            --card-hover: rgba(26, 26, 62, 0.95);
+        }
+
+        body {
+            font-family: 'Heebo', 'Segoe UI', sans-serif;
+            background: var(--primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* רקע אנימציה */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .grid-lines {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: 
+                linear-gradient(rgba(74, 144, 226, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 144, 226, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .orb1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-blue);
+            top: -100px;
+            right: -100px;
+        }
+
+        .orb2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-purple);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* הדר */
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple), var(--accent-pink));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* קטגוריות */
+        .categories-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .categories-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .category-btn {
+            padding: 12px 24px;
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Heebo', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .category-btn:hover::before {
+            left: 100%;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, var(--category-color), var(--category-color-dark));
+            border-color: var(--category-color);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .category-btn.books { --category-color: var(--accent-blue); --category-color-dark: #357abd; }
+        .category-btn.music { --category-color: var(--accent-purple); --category-color-dark: #7d3fa0; }
+        .category-btn.movies { --category-color: var(--accent-pink); --category-color-dark: #c2185b; }
+        .category-btn.theater { --category-color: var(--accent-orange); --category-color-dark: #cc5529; }
+        .category-btn.art { --category-color: var(--accent-green); --category-color-dark: #27ae60; }
+        .category-btn.festivals { --category-color: var(--accent-gold); --category-color-dark: #d68910; }
+        .category-btn.all { --category-color: #6c757d; --category-color-dark: #5a6268; }
+
+        /* מוצרים */
+        .products-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .products-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .product-card.hidden {
+            display: none;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: var(--category-color);
+        }
+
+        .product-card.selected {
+            border-color: var(--category-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--category-color), var(--category-color-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            animation: iconGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes iconGlow {
+            0%, 100% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
+        .product-image span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--category-color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .product-author {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .product-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--category-color);
+        }
+
+        .select-btn {
+            padding: 8px 20px;
+            background: var(--category-color);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Heebo', sans-serif;
+        }
+
+        .select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .select-btn.selected {
+            background: var(--accent-green);
+        }
+
+        /* מוצרים נבחרים */
+        .selected-products {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            border: 2px solid var(--accent-green);
+            border-radius: 25px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(-50%) translateY(100px);
+            transition: all 0.3s ease;
+        }
+
+        .selected-products.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .selected-count {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .clear-selection {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-family: 'Heebo', sans-serif;
+        }
+
+        .clear-selection:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* הודעת ריק */
+        .empty-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* רספונסיבי */
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 20px 30px;
+            }
+
+            .categories-container {
+                gap: 10px;
+            }
+
+            .category-btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .selected-products {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .selected-products.show {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="grid-lines"></div>
+        <div class="floating-orb orb1"></div>
+        <div class="floating-orb orb2"></div>
+    </div>
+
+    <header>
+        <h1>🎭 מוצרי תרבות בישראל</h1>
+        <p>גלה ובחר מוצרי תרבות ישראליים מרתקים לפי קטגוריות. ספרים, מוזיקה, סרטים, תיאטרון, אמנות ועוד</p>
+    </header>
+
+    <section class="categories-section">
+        <h2 class="categories-title">בחר קטגוריה</h2>
+        <div class="categories-container">
+            <button class="category-btn all active" data-category="all">הכל</button>
+            <button class="category-btn books" data-category="books">📚 ספרים</button>
+            <button class="category-btn music" data-category="music">🎵 מוזיקה</button>
+            <button class="category-btn movies" data-category="movies">🎬 סרטים</button>
+            <button class="category-btn theater" data-category="theater">🎭 תיאטרון</button>
+            <button class="category-btn art" data-category="art">🎨 אמנות</button>
+            <button class="category-btn festivals" data-category="festivals">🎪 פסטיבלים</button>
+        </div>
+    </section>
+
+    <section class="products-section">
+        <h2 class="products-title">מוצרים זמינים</h2>
+        <div class="products-grid" id="productsGrid">
+            <!-- מוצרים יוטענו דרך JavaScript -->
+        </div>
+    </section>
+
+    <div class="selected-products" id="selectedProducts">
+        <span class="selected-count" id="selectedCount">0 מוצרים נבחרו</span>
+        <button class="clear-selection" onclick="clearSelection()">נקה בחירה</button>
+    </div>
+
+    <script>
+        // נתוני מוצרים
+        const products = [
+            // ספרים
+            {
+                id: 1,
+                category: 'books',
+                title: 'ארץ התן',
+                author: 'עמוס עוז',
+                description: 'רומן קלאסי של אחד מגדולי הסופרים הישראליים, המתאר את החיים בקיבוץ בשנות ה-50.',
+                price: '₪89',
+                icon: '📖'
+            },
+            {
+                id: 2,
+                category: 'books',
+                title: 'האישה שאהבה יותר מדי',
+                author: 'דויד גרוסמן',
+                description: 'רומן עטור פרסים העוסק באהבה, אובדן ותקווה בחברה הישראלית העכשווית.',
+                price: '₪95',
+                icon: '📚'
+            },
+            {
+                id: 3,
+                category: 'books',
+                title: 'הבית ברחוב גריבלדי',
+                author: 'רונית מטלון',
+                description: 'רומן מרגש על משפחה ישראלית ועל הזהות המזרחית בחברה הישראלית.',
+                price: '₪78',
+                icon: '📕'
+            },
+            {
+                id: 4,
+                category: 'books',
+                title: 'מקימי',
+                author: 'אשכול נבו',
+                description: 'רומן עכשווי על דור המילניום בישראל, אהבה, חברות וחיפוש אחר משמעות.',
+                price: '₪82',
+                icon: '📗'
+            },
+            // מוזיקה
+            {
+                id: 5,
+                category: 'music',
+                title: 'שלום חנוך - אוסף',
+                author: 'שלום חנוך',
+                description: 'אוסף מקיף של שיריו הגדולים של אחד מגדולי המוזיקאים הישראליים.',
+                price: '₪120',
+                icon: '🎸'
+            },
+            {
+                id: 6,
+                category: 'music',
+                title: 'אריק איינשטיין - האוסף המלא',
+                author: 'אריק איינשטיין',
+                description: 'כל השירים הגדולים של הזמר האהוב ביותר בישראל, באיכות משופרת.',
+                price: '₪150',
+                icon: '🎤'
+            },
+            {
+                id: 7,
+                category: 'music',
+                title: 'הפרויקט של עידן רייכל',
+                author: 'עידן רייכל',
+                description: 'מוזיקה עכשווית המשלבת מסורות מזרחיות עם סאונד מודרני.',
+                price: '₪110',
+                icon: '🎹'
+            },
+            {
+                id: 8,
+                category: 'music',
+                title: 'אהוד בנאי - להיטים',
+                author: 'אהוד בנאי',
+                description: 'השירים הגדולים של אהוד בנאי, אמן רוק ישראלי ייחודי ומקורי.',
+                price: '₪100',
+                icon: '🎵'
+            },
+            // סרטים
+            {
+                id: 9,
+                category: 'movies',
+                title: 'ואלס עם באשיר',
+                author: 'ארי פולמן',
+                description: 'סרט אנימציה דוקומנטרי עטור פרסים על מלחמת לבנון הראשונה.',
+                price: '₪65',
+                icon: '🎬'
+            },
+            {
+                id: 10,
+                category: 'movies',
+                title: 'לבנון',
+                author: 'שמואל מעוז',
+                description: 'סרט מלחמה מצמרר המתרחש כולו בתוך טנק במהלך מלחמת לבנון הראשונה.',
+                price: '₪60',
+                icon: '🎥'
+            },
+            {
+                id: 11,
+                category: 'movies',
+                title: 'הכלה הסורית',
+                author: 'ערן ריקליס',
+                description: 'דרמה מרגשת על אהבה חוצת גבולות בין ישראלי לסורית.',
+                price: '₪55',
+                icon: '🎞️'
+            },
+            {
+                id: 12,
+                category: 'movies',
+                title: 'פוקסטרוט',
+                author: 'שמואל מעוז',
+                description: 'דרמה משפחתית עוצמתית על התמודדות עם אובדן וטרגדיה.',
+                price: '₪70',
+                icon: '🎭'
+            },
+            // תיאטרון
+            {
+                id: 13,
+                category: 'theater',
+                title: 'הבית של ברנרדה אלבה',
+                author: 'תיאטרון הבימה',
+                description: 'הפקה מרהיבה של המחזה הקלאסי של לורקה, בביצוע שחקני הבימה.',
+                price: '₪150',
+                icon: '🎭'
+            },
+            {
+                id: 14,
+                category: 'theater',
+                title: 'המלך ליר',
+                author: 'תיאטרון הקאמרי',
+                description: 'הפקה חדשה של המחזה השייקספירי הקלאסי, בעיבוד עכשווי.',
+                price: '₪140',
+                icon: '👑'
+            },
+            {
+                id: 15,
+                category: 'theater',
+                title: 'החייל האמיץ שוויק',
+                author: 'תיאטרון גשר',
+                description: 'קומדיה בלגנית על חייל צ\'כי במלחמת העולם הראשונה.',
+                price: '₪130',
+                icon: '🎪'
+            },
+            {
+                id: 16,
+                category: 'theater',
+                title: 'הדיבוק',
+                author: 'תיאטרון יידישפיל',
+                description: 'המחזה הקלאסי של אנסקי על אהבה, רוח רעה ומסורת יהודית.',
+                price: '₪120',
+                icon: '👻'
+            },
+            // אמנות
+            {
+                id: 17,
+                category: 'art',
+                title: 'תערוכת רפי לביא',
+                author: 'מוזיאון תל אביב',
+                description: 'רטרוספקטיבה מקיפה של אחד מגדולי האמנים הישראליים.',
+                price: '₪50',
+                icon: '🖼️'
+            },
+            {
+                id: 18,
+                category: 'art',
+                title: 'יצירותיה של מיכל נאמן',
+                author: 'גלריה גורדון',
+                description: 'תערוכה של אמנית מושגית פורצת דרך, חוקרת זהות ומגדר.',
+                price: '₪45',
+                icon: '🎨'
+            },
+            {
+                id: 19,
+                category: 'art',
+                title: 'פיסול ישראלי עכשווי',
+                author: 'מוזיאון ישראל',
+                description: 'תערוכה המציגה את מיטב הפיסול הישראלי מהשנים האחרונות.',
+                price: '₪55',
+                icon: '🗿'
+            },
+            {
+                id: 20,
+                category: 'art',
+                title: 'צילום ישראלי - דור חדש',
+                author: 'גלריה דביר',
+                description: 'תערוכת צילום המציגה את הקול הצעיר והחדש בצילום הישראלי.',
+                price: '₪40',
+                icon: '📷'
+            },
+            // פסטיבלים
+            {
+                id: 21,
+                category: 'festivals',
+                title: 'פסטיבל ישראל',
+                author: 'ירושלים',
+                description: 'פסטיבל התרבות הגדול בישראל, עם הופעות, תיאטרון ומוזיקה מרחבי העולם.',
+                price: '₪200',
+                icon: '🎪'
+            },
+            {
+                id: 22,
+                category: 'festivals',
+                title: 'פסטיבל עכו',
+                author: 'עכו',
+                description: 'פסטיבל התיאטרון האלטרנטיבי הגדול בישראל, על חומות עכו העתיקה.',
+                price: '₪180',
+                icon: '🏰'
+            },
+            {
+                id: 23,
+                category: 'festivals',
+                title: 'פסטיבל הג\'אז בים האדום',
+                author: 'אילת',
+                description: 'פסטיבל הג\'אז הבינלאומי הגדול בישראל, על חוף ים האדום.',
+                price: '₪250',
+                icon: '🎷'
+            },
+            {
+                id: 24,
+                category: 'festivals',
+                title: 'פסטיבל הקולנוע ירושלים',
+                author: 'ירושלים',
+                description: 'פסטיבל הקולנוע הגדול בישראל, עם הקרנות בכורה וסרטים מרחבי העולם.',
+                price: '₪220',
+                icon: '🎬'
+            }
+        ];
+
+        let selectedProducts = new Set();
+        let currentCategory = 'all';
+
+        // יצירת כרטיסי מוצרים
+        function renderProducts(category = 'all') {
+            const grid = document.getElementById('productsGrid');
+            const filteredProducts = category === 'all' 
+                ? products 
+                : products.filter(p => p.category === category);
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '<div class="empty-message">לא נמצאו מוצרים בקטגוריה זו</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredProducts.map(product => {
+                const isSelected = selectedProducts.has(product.id);
+                const categoryColors = {
+                    books: 'var(--accent-blue)',
+                    music: 'var(--accent-purple)',
+                    movies: 'var(--accent-pink)',
+                    theater: 'var(--accent-orange)',
+                    art: 'var(--accent-green)',
+                    festivals: 'var(--accent-gold)'
+                };
+
+                return `
+                    <div class="product-card ${isSelected ? 'selected' : ''}" 
+                         data-id="${product.id}" 
+                         data-category="${product.category}"
+                         style="--category-color: ${categoryColors[product.category]}">
+                        <div class="product-image" style="background: linear-gradient(135deg, ${categoryColors[product.category]}, ${categoryColors[product.category]}dd);">
+                            <span>${product.icon}</span>
+                        </div>
+                        <div class="product-content">
+                            <span class="product-category" style="color: ${categoryColors[product.category]}">${getCategoryName(product.category)}</span>
+                            <h3 class="product-title">${product.title}</h3>
+                            <p class="product-author">${product.author}</p>
+                            <p class="product-description">${product.description}</p>
+                            <div class="product-footer">
+                                <span class="product-price" style="color: ${categoryColors[product.category]}">${product.price}</span>
+                                <button class="select-btn ${isSelected ? 'selected' : ''}" 
+                                        onclick="toggleProduct(${product.id}, event)"
+                                        style="background: ${isSelected ? 'var(--accent-green)' : categoryColors[product.category]}">
+                                    ${isSelected ? '✓ נבחר' : 'בחר'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // אנימציה של כרטיסים
+            const cards = grid.querySelectorAll('.product-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.05}s`;
+            });
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                books: 'ספרים',
+                music: 'מוזיקה',
+                movies: 'סרטים',
+                theater: 'תיאטרון',
+                art: 'אמנות',
+                festivals: 'פסטיבלים'
+            };
+            return names[category] || category;
+        }
+
+        // החלפת קטגוריה
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // הסרת active מכל הכפתורים
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                // הוספת active לכפתור הנוכחי
+                this.classList.add('active');
+                
+                currentCategory = this.dataset.category;
+                renderProducts(currentCategory);
+            });
+        });
+
+        // בחירת מוצר
+        function toggleProduct(id, event) {
+            event.stopPropagation();
+            
+            if (selectedProducts.has(id)) {
+                selectedProducts.delete(id);
+            } else {
+                selectedProducts.add(id);
+            }
+            
+            updateSelectedCount();
+            renderProducts(currentCategory);
+        }
+
+        // עדכון מונה מוצרים נבחרים
+        function updateSelectedCount() {
+            const count = selectedProducts.size;
+            const countElement = document.getElementById('selectedCount');
+            const container = document.getElementById('selectedProducts');
+            
+            countElement.textContent = `${count} ${count === 1 ? 'מוצר נבחר' : 'מוצרים נבחרו'}`;
+            
+            if (count > 0) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // ניקוי בחירה
+        function clearSelection() {
+            selectedProducts.clear();
+            updateSelectedCount();
+            renderProducts(currentCategory);
+        }
+
+        // אתחול
+        renderProducts();
+    </script>
+</body>
+</html>
+
