@@ -199,9 +199,8 @@
         }
 
         .project-card.git { --card-color: var(--accent-magenta); }
-        .project-card.stocks { --card-color: var(--accent-cyan); }
-        .project-card.ml { --card-color: var(--accent-gold); }
         .project-card.protein { --card-color: var(--accent-green); }
+        .project-card.cultural { --card-color: #4a90e2; }
 
         /* אייקון הכרטיס */
         .card-icon {
@@ -345,7 +344,6 @@
         .project-card:nth-child(1) { animation-delay: 0.1s; }
         .project-card:nth-child(2) { animation-delay: 0.2s; }
         .project-card:nth-child(3) { animation-delay: 0.3s; }
-        .project-card:nth-child(4) { animation-delay: 0.4s; }
 
         @keyframes fadeInUp {
             to {
@@ -394,7 +392,7 @@
     <header>
         <div class="logo">🚀</div>
         <h1>הפרויקטים שלי</h1>
-        <p>אוסף פרויקטים אינטראקטיביים בנושאי טכנולוגיה, פיננסים, מדע וביולוגיה. לחצו על כרטיס כדי לחקור!</p>
+        <p>אוסף פרויקטים אינטראקטיביים בנושאי טכנולוגיה, מדע, ביולוגיה ותרבות. לחצו על כרטיס כדי לחקור!</p>
     </header>
 
     <main class="container">
@@ -421,52 +419,8 @@
                 </div>
             </a>
 
-            <!-- Israeli Stocks Tracker -->
-            <a href="israeli_stocks_tracker.html" class="project-card stocks">
-                <div class="card-icon">
-                    <span>📈</span>
-                </div>
-                <div class="card-content">
-                    <span class="card-tag">פיננסים</span>
-                    <h2 class="card-title">מעקב מניות ישראליות</h2>
-                    <p class="card-description">
-                        דשבורד אינטראקטיבי למעקב אחר מניות בבורסה הישראלית. גרפים בזמן אמת, מדדים וניתוח טכני.
-                    </p>
-                    <div class="card-features">
-                        <span class="feature">📊 גרפים חיים</span>
-                        <span class="feature">💹 מדדי בורסה</span>
-                        <span class="feature">⚡ עדכון אוטומטי</span>
-                    </div>
-                </div>
-                <div class="card-arrow">
-                    <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
-                </div>
-            </a>
-
-            <!-- Machine Learning Visualization -->
-            <a href="machine_learning_visualization.html" class="project-card ml">
-                <div class="card-icon">
-                    <span>🤖</span>
-                </div>
-                <div class="card-content">
-                    <span class="card-tag">בינה מלאכותית</span>
-                    <h2 class="card-title">ויזואליזציה של למידת מכונה</h2>
-                    <p class="card-description">
-                        גלה וחקור אלגוריתמי למידת מכונה באמצעות ויזואליזציות אינטראקטיביות. סיווג, רגרסיה, קיבוץ ורשתות נוירונים.
-                    </p>
-                    <div class="card-features">
-                        <span class="feature">🧠 רשתות נוירונים</span>
-                        <span class="feature">📊 סיווג ורגרסיה</span>
-                        <span class="feature">🔵 K-Means</span>
-                    </div>
-                </div>
-                <div class="card-arrow">
-                    <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
-                </div>
-            </a>
-
-            <!-- Protein Coil Visualization -->
-            <a href="protein_coil_visualization.html" class="project-card protein">
+            <!-- Protein Folding Visualization -->
+            <a href="protein_folding.html" class="project-card protein">
                 <div class="card-icon">
                     <span>🧬</span>
                 </div>
@@ -480,6 +434,28 @@
                         <span class="feature">🎨 תלת-מימד</span>
                         <span class="feature">🔬 מבנה חלבון</span>
                         <span class="feature">🖱️ אינטראקטיבי</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                </div>
+            </a>
+
+            <!-- Cultural Products -->
+            <a href="cultural_products.html" class="project-card cultural">
+                <div class="card-icon">
+                    <span>🎭</span>
+                </div>
+                <div class="card-content">
+                    <span class="card-tag">תרבות ישראלית</span>
+                    <h2 class="card-title">מוצרי תרבות בישראל</h2>
+                    <p class="card-description">
+                        אתר אינטראקטיבי לבחירת מוצרי תרבות ישראליים לפי קטגוריות. ספרים, מוזיקה, סרטים, תיאטרון, אמנות ופסטיבלים.
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">📚 6 קטגוריות</span>
+                        <span class="feature">🎯 בחירה אינטראקטיבית</span>
+                        <span class="feature">✨ 24 מוצרים</span>
                     </div>
                 </div>
                 <div class="card-arrow">
